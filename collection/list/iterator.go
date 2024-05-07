@@ -39,3 +39,8 @@ func (i *Iterator[T]) Previous() T {
 	i.currentBackwardIndex--
 	return key
 }
+
+func (i *Iterator[T]) Reset() {
+	i.currentForwardIndex = 0
+	i.currentBackwardIndex = i.source.Len() - 1
+}

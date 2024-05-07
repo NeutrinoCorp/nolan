@@ -83,4 +83,10 @@ func TestSliceList_Add(t *testing.T) {
 		t.Logf("add buffer: %v", iter.Next())
 	}
 	t.Log(ls.Len())
+
+	sublist := ls.ToSubList(0, 3)
+	iter = sublist.NewIterator()
+	for iter.HasNext() {
+		t.Logf("sublist buffer: %v", iter.Next())
+	}
 }

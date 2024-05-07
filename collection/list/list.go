@@ -1,10 +1,12 @@
 package list
 
-import "github.com/neutrinocorp/nolan/collection"
+import (
+	"github.com/neutrinocorp/nolan/collection"
+)
 
-// List An ordered collection (also known as a sequence). The user of this interface has precise control over where in
-// the list each element is inserted. The user can access elements by their integer index (position in the list),
-// and search for elements in the list.
+// List An ordered collection.Collection (also known as a sequence). The user of this interface has precise control
+// over where in the list each element is inserted. The user can access elements by their integer
+// index (position in the list), and search for elements in the list.
 //
 // Unlike sets, lists typically allow duplicate elements. More formally, lists typically allow pairs of elements e1
 // and e2 such that e1 == e2, and they typically allow multiple nil elements if they allow null elements at all.
@@ -20,6 +22,9 @@ type List[T any] interface {
 	GetAt(index int) T
 	// RemoveAt Removes the element at the specified position in this list.
 	RemoveAt(index int) T
+	// ForEachWithIndex Iterates through all the elements from this collection. Use predicate's return value to
+	// indicate a break of the iteration. 'A' is the index while 'B' is the item.
+	ForEachWithIndex(predicateFunc collection.IterablePredicateBiFunc[int, T])
 	// ToSubList Returns a view of the portion of this list between the specified fromIndex, inclusive, and toIndex, exclusive.
 	ToSubList(fromIndex, toIndex int) List[T]
 }

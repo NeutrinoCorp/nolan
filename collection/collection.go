@@ -8,6 +8,8 @@ type Collection[T any] interface {
 	Add(v T) bool
 	// AddAll Adds all the elements in the specified collection to this collection.
 	AddAll(src Collection[T]) bool
+	// AddSlice Adds all the elements in the specified slice (variadic) to this collection.
+	AddSlice(items ...T) bool
 	// Clear Removes all the elements from this collection.
 	Clear()
 	// Len Returns the number of elements in this collection.
@@ -16,11 +18,7 @@ type Collection[T any] interface {
 	IsEmpty() bool
 	// ToSlice Returns all the elements from this collection as a slice of T.
 	ToSlice() []T
-}
-
-type ComparableCollection[T comparable] interface {
-	// Contains Returns true if this collection contains the specified element.
-	Contains(v T) bool
-	// ContainsAll Returns true if this collection contains all the elements in the specified collection.
-	ContainsAll(src Collection[T]) bool
+	// ForEach Iterates through all the elements from this collection. Use predicate's return value to
+	// indicate a break of the iteration.
+	ForEach(predicateFunc IterablePredicateFunc[T])
 }
