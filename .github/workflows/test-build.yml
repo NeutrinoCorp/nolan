@@ -1,0 +1,76 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+env:
+  GO111MODULE: 'on'
+
+permissions:
+  contents: read
+  pull-requests: read
+  checks: write
+
+jobs:
+  lint:
+    name: Run Go Linter
+    strategy:
+      matrix:
+        os: ['ubuntu-latest']
+        go-version: ['1.21', '1.22']
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go-version }}
+          cache: true
+
+      - name: Run linter
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v1.58
+
+  unit-testing:
+    name: Run Unit Tests
+    strategy:
+      matrix:
+        os: [ 'ubuntu-latest' ]
+        go-version: ['1.21', '1.22' ]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go-version }}
+          cache: true
+
+      - name: Run Unit Testing
+        run: go test ./... -cover
+
+  integration-testing:
+    name: Run Integration Tests
+    strategy:
+      matrix:
+        os: [ 'ubuntu-latest' ]
+        go-version: ['1.21', '1.22' ]
+    runs-on: ${{ matrix.os }}
+    needs: ['unit-testing']
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go-version }}
+          cache: true
+
+      - name: Run Integration Testing
+        run: go test ./... -tags=integration -cover
