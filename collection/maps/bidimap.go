@@ -1,4 +1,3 @@
 package maps
 
-type BiDiMap interface {
-}
+// TODO: Implement me

@@ -4,7 +4,7 @@ import (
 	"github.com/neutrinocorp/nolan/collection"
 )
 
-// doublyLinkedListNode is a structure used to hold a key and both, previous and next, pointer reference to neighbour
+// doublyLinkedListNode is a structure used to hold a key and both, previous and next, pointer reference to neighbor
 // nodes.
 type doublyLinkedListNode[T any] struct {
 	previous *doublyLinkedListNode[T]
@@ -23,6 +23,12 @@ type DoublyLinkedList[T any] struct {
 
 var _ List[string] = &DoublyLinkedList[string]{}
 
+// NewDoublyLinkedList allocates a new DoublyLinkedList instance.
+func NewDoublyLinkedList[T any]() *DoublyLinkedList[T] {
+	return &DoublyLinkedList[T]{}
+}
+
+// NewDoublyLinkedListFromCollection allocates a new DoublyLinkedList instance copying 'src' items into it.
 func NewDoublyLinkedListFromCollection[T any](src collection.Collection[T]) *DoublyLinkedList[T] {
 	ls := &DoublyLinkedList[T]{}
 	iter := src.NewIterator()
@@ -32,6 +38,7 @@ func NewDoublyLinkedListFromCollection[T any](src collection.Collection[T]) *Dou
 	return ls
 }
 
+// NewDoublyLinkedListFromSlice allocates a new DoublyLinkedList instance copying 'src' items into it.
 func NewDoublyLinkedListFromSlice[T any](src []T) *DoublyLinkedList[T] {
 	ls := &DoublyLinkedList[T]{}
 	for _, v := range src {
@@ -57,21 +64,6 @@ func (l *DoublyLinkedList[T]) getNodeAt(index int) *doublyLinkedListNode[T] {
 	return nil
 }
 
-func (l *DoublyLinkedList[T]) addToNode(prevNode, nextNode *doublyLinkedListNode[T]) {
-	if prevNode == nil {
-		return
-	}
-
-	l.len++
-	nextNode.next = prevNode.next
-	prevNode.next = nextNode
-	nextNode.previous = prevNode
-	if nextNode.next != nil {
-		nextNode.next.previous = nextNode
-	}
-	l.tail = nextNode
-}
-
 func (l *DoublyLinkedList[T]) addToNewNode(prevNode *doublyLinkedListNode[T], v T) {
 	if prevNode == nil {
 		return
@@ -90,6 +82,12 @@ func (l *DoublyLinkedList[T]) addToNewNode(prevNode *doublyLinkedListNode[T], v 
 	l.tail = newNode
 }
 
+// NewIterator returns an iterator over elements of type T.
+func (l *DoublyLinkedList[T]) NewIterator() collection.Iterator[T] {
+	return NewIterator[T](l)
+}
+
+// Add adds an element into this collection.
 func (l *DoublyLinkedList[T]) Add(v T) bool {
 	if l.head == nil {
 		l.head = &doublyLinkedListNode[T]{
@@ -103,100 +101,7 @@ func (l *DoublyLinkedList[T]) Add(v T) bool {
 	return true
 }
 
-func (l *DoublyLinkedList[T]) SetAt(index int, v T) T {
-	if !isValidIndex(index, l.len) {
-		var zeroVal T
-		return zeroVal
-	}
-	node := l.getNodeAt(index)
-	tmpKey := node.key
-	node.key = v
-	return tmpKey
-}
-
-func (l *DoublyLinkedList[T]) RemoveAt(index int) T {
-	if !isValidIndex(index, l.len) {
-		var zeroVal T
-		return zeroVal
-	}
-
-	node := l.getNodeAt(index)
-	if node == nil {
-		var zeroVal T
-		return zeroVal
-	}
-
-	key := node.key
-	if index == l.len-1 {
-		l.tail = l.tail.previous
-	}
-	if node.previous != nil {
-		node.previous.next = node.next
-	}
-	if node.next != nil {
-		node.next.previous = node.previous
-	}
-	l.len--
-	return key
-}
-
-func (l *DoublyLinkedList[T]) GetAt(index int) T {
-	if !isValidIndex(index, l.len) {
-		var zeroVal T
-		return zeroVal
-	}
-	node := l.getNodeAt(index)
-	if node == nil {
-		var zeroVal T
-		return zeroVal
-	}
-	return node.key
-}
-
-func (l *DoublyLinkedList[T]) Len() int {
-	return l.len
-}
-
-func (l *DoublyLinkedList[T]) Clear() {
-	l.head = nil
-	l.tail = nil
-	l.len = 0
-}
-
-func (l *DoublyLinkedList[T]) IsEmpty() bool {
-	return l.len == 0
-}
-
-func (l *DoublyLinkedList[T]) ToSlice() []T {
-	if l.head == nil {
-		return nil
-	}
-
-	currentNode := l.head
-	buf := make([]T, 0, l.len)
-	for currentNode != nil {
-		buf = append(buf, currentNode.key)
-		currentNode = currentNode.next
-	}
-	return buf
-}
-
-func (l *DoublyLinkedList[T]) AddAt(index int, v T) {
-	if !isValidIndex(index, l.len) {
-		return
-	}
-	node := l.getNodeAt(index)
-	if node == nil {
-		return
-	}
-
-	l.addToNewNode(node, v)
-}
-
-func (l *DoublyLinkedList[T]) NewIterator() collection.Iterator[T] {
-	return NewIterator[T](l)
-}
-
+// AddAll adds all the elements into this collection.
 func (l *DoublyLinkedList[T]) AddAll(src collection.Collection[T]) bool {
 	wasMod := false
 	src.ForEach(func(a T) bool {
@@ -209,23 +114,7 @@ func (l *DoublyLinkedList[T]) AddAll(src collection.Collection[T]) bool {
 	return wasMod
 }
 
-func (l *DoublyLinkedList[T]) AddAllAt(index int, src collection.Collection[T]) bool {
-	if !isValidIndex(index, l.len) || src.Len() == 0 {
-		return false
-	}
-
-	newList := NewDoublyLinkedListFromCollection(src)
-	node := l.getNodeAt(index)
-	newList.getNodeAt(0).previous = node
-	newList.getNodeAt(newList.len - 1).next = node.next
-	node.next = newList.getNodeAt(0)
-	if index == l.len-1 {
-		l.tail = newList.getNodeAt(newList.len - 1)
-	}
-	l.len += newList.len
-	return true
-}
-
+// AddSlice adds all the elements in the specified slice (variadic) to this collection.
 func (l *DoublyLinkedList[T]) AddSlice(items ...T) bool {
 	if len(items) == 0 {
 		return false
@@ -244,6 +133,40 @@ func (l *DoublyLinkedList[T]) AddSlice(items ...T) bool {
 	return true
 }
 
+// Clear removes all the elements from this collection.
+func (l *DoublyLinkedList[T]) Clear() {
+	l.head = nil
+	l.tail = nil
+	l.len = 0
+}
+
+// Len returns the number of elements in this collection.
+func (l *DoublyLinkedList[T]) Len() int {
+	return l.len
+}
+
+// IsEmpty returns true if this collection contains no elements.
+func (l *DoublyLinkedList[T]) IsEmpty() bool {
+	return l.len == 0
+}
+
+// ToSlice returns all the elements from this collection as a slice of T.
+func (l *DoublyLinkedList[T]) ToSlice() []T {
+	if l.head == nil {
+		return nil
+	}
+
+	currentNode := l.head
+	buf := make([]T, 0, l.len)
+	for currentNode != nil {
+		buf = append(buf, currentNode.key)
+		currentNode = currentNode.next
+	}
+	return buf
+}
+
+// ForEach traverses through all the elements from this collection.
+// Use predicate's return value to indicate a break of the iteration, TRUE meaning a break.
 func (l *DoublyLinkedList[T]) ForEach(predicateFunc collection.IterablePredicateFunc[T]) {
 	currentNode := l.head
 	for currentNode != nil {
@@ -255,6 +178,96 @@ func (l *DoublyLinkedList[T]) ForEach(predicateFunc collection.IterablePredicate
 	}
 }
 
+// AddAt inserts the specified element at the specified position in this list.
+func (l *DoublyLinkedList[T]) AddAt(index int, v T) {
+	if !isValidIndex(index, l.len) {
+		return
+	}
+	node := l.getNodeAt(index)
+	if node == nil {
+		return
+	}
+
+	l.addToNewNode(node, v)
+}
+
+// AddAllAt inserts all the elements in the specified collection into this list at the specified position.
+func (l *DoublyLinkedList[T]) AddAllAt(index int, src collection.Collection[T]) bool {
+	if !isValidIndex(index, l.len) {
+		return false
+	}
+
+	newList := NewDoublyLinkedListFromCollection(src)
+	node := l.getNodeAt(index)
+	newList.getNodeAt(0).previous = node
+	newList.getNodeAt(newList.len - 1).next = node.next
+	node.next = newList.getNodeAt(0)
+	if index == l.len-1 {
+		l.tail = newList.getNodeAt(newList.len - 1)
+	}
+	l.len += newList.len
+	return true
+}
+
+// SetAt replaces the element at the specified position in this list with the specified element.
+func (l *DoublyLinkedList[T]) SetAt(index int, v T) T {
+	if !isValidIndex(index, l.len) {
+		var zeroVal T
+		return zeroVal
+	}
+	node := l.getNodeAt(index)
+	tmpKey := node.key
+	node.key = v
+	return tmpKey
+}
+
+// GetAt returns the element at the specified position in this list.
+func (l *DoublyLinkedList[T]) GetAt(index int) T {
+	if !isValidIndex(index, l.len) {
+		var zeroVal T
+		return zeroVal
+	}
+	node := l.getNodeAt(index)
+	if node == nil {
+		var zeroVal T
+		return zeroVal
+	}
+	return node.key
+}
+
+// RemoveAt removes the element at the specified position in this list.
+func (l *DoublyLinkedList[T]) RemoveAt(index int) T {
+	if !isValidIndex(index, l.len) {
+		var zeroVal T
+		return zeroVal
+	}
+
+	node := l.getNodeAt(index)
+	if node == nil {
+		var zeroVal T
+		return zeroVal
+	}
+
+	key := node.key
+	if index == 0 {
+		l.head = node.next
+	}
+	if index == l.len-1 {
+		l.tail = l.tail.previous
+	}
+	if node.previous != nil {
+		node.previous.next = node.next
+	}
+	if node.next != nil {
+		node.next.previous = node.previous
+	}
+	l.len--
+	return key
+}
+
+// ForEachWithIndex traverses through all the elements from this collection.
+// Use predicate's return value to indicate a break of the iteration.
+// 'A' is the index while 'B' is the item.
 func (l *DoublyLinkedList[T]) ForEachWithIndex(predicateFunc collection.IterablePredicateBiFunc[int, T]) {
 	currentNode := l.head
 	count := 0
@@ -268,6 +281,8 @@ func (l *DoublyLinkedList[T]) ForEachWithIndex(predicateFunc collection.Iterable
 	}
 }
 
+// ToSubList returns a view of the portion of this list between the specified fromIndex, inclusive, and toIndex,
+// exclusive.
 func (l *DoublyLinkedList[T]) ToSubList(fromIndex, toIndex int) List[T] {
 	if fromIndex < 0 || toIndex >= l.len || toIndex < fromIndex {
 		return nil
@@ -275,11 +290,7 @@ func (l *DoublyLinkedList[T]) ToSubList(fromIndex, toIndex int) List[T] {
 
 	ls := &DoublyLinkedList[T]{}
 	currentNode := l.head
-	for currentNode != nil {
-		if fromIndex == toIndex {
-			break
-		}
-
+	for currentNode != nil && fromIndex <= toIndex {
 		ls.Add(currentNode.key)
 		currentNode = currentNode.next
 		fromIndex++

@@ -2,7 +2,7 @@ package list
 
 import "github.com/neutrinocorp/nolan/collection"
 
-// IndexOf Returns the index of the given value. If not found, this routine will return -1.
+// IndexOf returns the index of the given value. If not found, this routine will return -1.
 func IndexOf[T comparable](list List[T], v T) int {
 	iter := list.NewIterator()
 	index := 0
@@ -15,10 +15,11 @@ func IndexOf[T comparable](list List[T], v T) int {
 	return -1
 }
 
-// IndexOfOrdered Returns the index of the given value from an ordered List. If not found, this routine will return -1.
+// IndexOfOrdered returns the index of the given value from an ordered List.
+// If not found, this routine will return -1.
 //
-// It works as expected with slice/array implementations of List (e.g. SliceList).
-// This is due the usage of binary search internally.
+// It works as expected with slice/array implementations of List
+// (e.g., SliceList) as this routine implements a binary search algorithm internally.
 func IndexOfOrdered[T collection.Ordered](list List[T], v T) int {
 	lowIdx := 0
 	highIdx := list.Len() - 1

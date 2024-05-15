@@ -11,6 +11,7 @@ package collection
 // See the [Compare] function for a consistent way to compare NaN values.
 //
 // Took from Go's 1.23 cmp package.
+// Redeclared in Nolan to avoid the increase of package's Go's minimum version (1.20).
 type Ordered interface {
 	~int | ~int8 | ~int16 | ~int32 | ~int64 |
 		~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64 | ~uintptr |
