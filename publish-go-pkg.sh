@@ -1,13 +1,13 @@
 #!/bin/bash
 
-while getopts ":v:m:" opt; do
+while getopts ":v:r:" opt; do
   case $opt in
     v) VERSION_TAG=$OPTARG;;
       \?)
         echo "Invalid option: -$OPTARG" >&2
         exit 1
         ;;
-    m) MODULE_NAME=$OPTARG;;
+    r) REPOSITORY_NAME=$OPTARG;;
       \?)
         echo "Invalid option: -$OPTARG" >&2
         exit 1
@@ -29,6 +29,6 @@ then
   NORMALIZED_TAG="$VERSION_TAG"
 fi
 
-GO_PROXY_URL=https://proxy.golang.org/github.com/neutrinocorp/"$MODULE_NAME"/@v/"$NORMALIZED_TAG".info
+GO_PROXY_URL=https://proxy.golang.org/"$REPOSITORY_NAME"/@v/"$NORMALIZED_TAG".info
 echo "forcing package publishing using URL: $GO_PROXY_URL"
 curl "$GO_PROXY_URL"
