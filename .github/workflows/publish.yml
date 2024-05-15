@@ -11,4 +11,4 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Force Go package publishing
-        run: make publish-pkg version="${{github.ref_name}}" module_name=streams
+        run: make publish-pkg version="${{github.ref_name}}" module_name=nolan
