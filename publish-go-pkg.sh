@@ -29,6 +29,6 @@ then
   NORMALIZED_TAG="$VERSION_TAG"
 fi
 
-GO_PROXY_URL=https://proxy.golang.org/github.com/alexandria-oss/"$MODULE_NAME"/@v/"$NORMALIZED_TAG".info
+GO_PROXY_URL=https://proxy.golang.org/github.com/neutrinocorp/"$MODULE_NAME"/@v/"$NORMALIZED_TAG".info
 echo "forcing package publishing using URL: $GO_PROXY_URL"
 curl "$GO_PROXY_URL"
